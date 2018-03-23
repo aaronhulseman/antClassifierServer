@@ -8,6 +8,7 @@ var fs = require('fs');
 var sharp = require('sharp');
 var readChunk = require('read-chunk');
 var fileType = require('file-type');
+var File = require('File');
 
 
 
@@ -76,18 +77,25 @@ app.post('/uploads', function(req, res){
     // rename it to it's orignal name
     form.on('file', function(name, file) {
         
+        var endIndex = file.name.lastIndexOf('.');
+        var filename = file.name.substring(0, endIndex);
+        console.log(filename);
+        
         // Log file metadata to console
         console.log(file.name);
         console.log(file.type);
         console.log(file.size);
-        
+        console.log(file.path);
+    
         // Save original image to /uploads
         fs.rename(file.path, path.join(form.uploadDir, file.name));
         
         // Use sharp to convert image and save it /uploads/jpegs
-        sharp('uploads/'+file.name).toFile("uploads/jpegs/Charlie_Brown.jpg", function(err, info){
+        sharp('uploads/'+file.name).toFile("uploads/jpegs/" + filename +".jpg", function(err, info){
             if(err) console.log(err);
         });
+        
+        createMetadata(file, filename);
     });
 
     // log any errors that occur
@@ -105,6 +113,20 @@ app.post('/uploads', function(req, res){
     
 
 });
+
+function createMetadata(file, filename){
+    
+    // Create JSON string with metadata for file.
+    var jsonString = '{ "name":"' + file.name + ', "type":"' + file.type + '", "size":"' + file.size + '"  }';
+    var fileTitle = "uploads/metadata/" + filename + ".json";
+    fs.writeFile(fileTitle, jsonString, function(err){
+        if (err){
+            return console.log(err);
+        }
+        console.log('Metadata written successfully'); 
+    });
+    
+}
 
 var server = app.listen(port, function(){
   console.log('Server listening on port 8080');
