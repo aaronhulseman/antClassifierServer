@@ -40,7 +40,7 @@ app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/uploads/user_img/*', function(req, res){
+app.get('/user_img/*', function(req, res){
     console.log('file being uploaded'); 
 });
 
@@ -68,7 +68,7 @@ app.get('/db', function (req, res, next) {
 
 
 
-app.post('/uploads', function(req, res){
+app.post('/user_img', function(req, res){
     console.log(req.method);
 
     // create an incoming form object
@@ -78,7 +78,7 @@ app.post('/uploads', function(req, res){
     form.multiples = true;
 
     // store all uploads in the /uploads directory
-    form.uploadDir = path.join(__dirname, '/uploads/user_img');
+    form.uploadDir = path.join(__dirname, '/user_img/');
 
     // every time a file has been uploaded successfully,
     // rename it to it's orignal name
@@ -104,7 +104,7 @@ app.post('/uploads', function(req, res){
         
         if(filetype == 'jpeg' || filetype == 'jpg' || filetype == 'png' || filetype == 'webp' || filetype == 'tiff' || filetype == 'tif' || filetype == 'svg'){
             try{
-                sharp('uploads/user_img/'+file.name).toFile("uploads/jpegs/" + filename +".jpg", function(err, info){
+                sharp('user_img/'+file.name).toFile("user_img/jpegs/" + filename +".jpg", function(err, info){
                         if(err) console.log(info);
                 });
             }
@@ -136,7 +136,7 @@ app.post('/uploads', function(req, res){
                 xhttp.setRequestHeader('Cache-Control','no-cache');
                 var reqbody = '{ "input": [{' 
                         + '"type": "remote",'
-                        + '"source": "https://localhost:8080/uploads/user_img/' + name 
+                        + '"source": "https://localhost:8080/user_img/' + name 
                     + '"}],'
                     + '"conversion": [{'
                         + '"target": "jpg"'
@@ -183,7 +183,6 @@ app.post('/uploads', function(req, res){
                                       dest: 'uploads/jpegs/' + filename +'.jpg'        
                                         // Save to /path/to/dest/photo.jpg
                                     }
-
                                     download.image(options)
                                       .then(({ filename, image }) => {
                                         console.log('File saved to', filename)
@@ -263,7 +262,7 @@ function createMetadata(file, filename){
     
     // Create JSON string with metadata for file.
     var jsonString = '{ "name":"' + file.name + ', "type":"' + file.type + '", "size":"' + file.size + '"  }';
-    var fileTitle = "uploads/metadata/" + filename + ".json";
+    var fileTitle = "user_img/metadata/" + filename + ".json";
     fs.writeFile(fileTitle, jsonString, function(err){
         if (err){
             return console.log(err);
@@ -276,7 +275,3 @@ function createMetadata(file, filename){
 var server = app.listen(port, function(){
   console.log('Server listening on port 8080');
 });
-
-
-
-
